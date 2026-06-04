@@ -21,29 +21,7 @@
 
     <button @click="sumarFactura">Agregar Factura</button>
 
-    <h2>Facturas Procesadas</h2>
-
-    <table border="5">
-      <thead>
-        <tr>
-          <th>ID</th>
-          <th>Folio</th>
-          <th>Proveedor</th>
-          <th>Monto</th>
-          <th>Estatus</th>
-        </tr>
-      </thead>
-
-      <tbody>
-        <tr v-for="factura in facturasFiltradas" :key="factura.id">
-          <td>{{ factura.id }}</td>
-          <td>{{ factura.folio }}</td>
-          <td>{{ factura.proveedor }}</td>
-          <td>{{ factura.monto }}</td>
-          <td>{{ factura.estatus }}</td>
-        </tr>
-      </tbody>
-    </table>
+    <FacturaTabla :facturas="facturasFiltradas" @eliminar-factura="eliminarFactura" />
 
     <p v-if="facturasFiltradas.length === 0">No se encontraron facturas con esa busqueda.</p>
 
@@ -52,40 +30,20 @@
     <input type="text" v-model="busqueda" />
     <p>Estas buscando: {{ busqueda }}</p>
 
-    <h2>Registrar Factura</h2>
-
-    <div class="formulario-factura">
-      <div class="campo">
-        <label>Folio</label>
-        <input type="text" v-model="folio" placeholder="Ejemplo: FAC-004" />
-      </div>
-
-      <div class="campo">
-        <label>Proveedor</label>
-        <input type="text" v-model="proveedor" placeholder="Ejemplo: Izzi" />
-      </div>
-
-      <div class="campo">
-        <label>Monto</label>
-        <input type="number" v-model="monto" placeholder="Ejemplo: 15000" />
-      </div>
-    </div>
-
-    <h2>Vista previa</h2>
-    <p>Folio: {{ folio }}</p>
-    <p>Proveedor: {{ proveedor }}</p>
-    <p>Monto: {{ monto }}</p>
-
-    <button @click="agregarFactura">Guardar Factura</button>
+    <FacturaForm @guardar-factura="agregarFactura" />
   </section>
 </template>
 
 <script>
-import DashboardCard from '../components/DashboardCard.vue'
+import DashboardCard from '../components/dashboard/DashboardCard.vue'
+import FacturaForm from '../components/facturas/FacturaForm.vue'
+import FacturaTabla from '../components/facturas/FacturaTabla.vue'
 
 export default {
   components: {
     DashboardCard,
+    FacturaForm,
+    FacturaTabla,
   },
 
   data() {
@@ -117,9 +75,6 @@ export default {
         },
       ],
       busqueda: '',
-      folio: '',
-      proveedor: '',
-      monto: '',
     }
   },
 
@@ -140,22 +95,20 @@ export default {
     sumarFactura() {
       this.facturasCargadas++
     },
-    agregarFactura() {
+    agregarFactura(factura) {
       const nuevaFactura = {
         id: this.facturas.length + 1,
-        folio: this.folio,
-        proveedor: this.proveedor,
-        monto: this.monto,
+        folio: factura.folio,
+        proveedor: factura.proveedor,
+        monto: factura.monto,
         estatus: 'Pendiente',
       }
 
       this.facturas.push(nuevaFactura)
-
       this.facturasCargadas++
-
-      this.folio = ''
-      this.proveedor = ''
-      this.monto = ''
+    },
+    eliminarFactura(id) {
+      this.facturas = this.facturas.filter((factura) => factura.id !== id)
     },
   },
 }
