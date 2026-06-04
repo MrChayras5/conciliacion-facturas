@@ -1,74 +1,41 @@
 <template>
   <section>
-    <H1>Facturas</H1>
-    <h3>Selecciona el archivo PDF</h3>
+    <h1>Facturas</h1>
 
-    <input type="file" accept=".pdf" @change="seleccionarArchivo" />
+    <FacturaUpload @analizar-factura="analizarFactura" />
 
-    <div v-if="archivo">
-      <h3>Archivo seleccionado</h3>
-      <p><strong>Nombre: </strong>{{ archivo.name }}</p>
-      <p><strong>Tamaño: </strong>{{ archivo.size }}</p>
-      <p><strong>Tipo: </strong>{{ archivo.type }}</p>
-    </div>
+    <ResultadoExtraccion v-if="resultadoExtraccion" :resultadoExtraccion="resultadoExtraccion" />
 
-    <button v-if="archivo" @click="analizarFactura">Analizar factura</button>
-
-    <div v-if="resultadoExtraccion">
-      <h3>Resultado de Extracción</h3>
-
-      <p><strong>Folio:</strong> {{ resultadoExtraccion.folio }}</p>
-      <p><strong>Proveedor:</strong> {{ resultadoExtraccion.proveedor }}</p>
-      <p><strong>RFC:</strong> {{ resultadoExtraccion.rfc }}</p>
-      <p><strong>UUID:</strong> {{ resultadoExtraccion.uuid }}</p>
-      <p><strong>Total:</strong> {{ resultadoExtraccion.total }}</p>
-    </div>
-
-    <div v-if="resultadoConciliacion">
-      <h3>Resultado de Conciliación</h3>
-
-      <p>
-        <strong>Estatus:</strong>
-        {{ resultadoConciliacion.estatus }}
-      </p>
-
-      <table v-if="resultadoConciliacion.diferencias.length > 0" border="1">
-        <thead>
-          <tr>
-            <th>Campo</th>
-            <th>PDF</th>
-            <th>BD</th>
-          </tr>
-        </thead>
-
-        <tbody>
-          <tr v-for="dif in resultadoConciliacion.diferencias" :key="dif.campo">
-            <td>{{ dif.campo }}</td>
-            <td>{{ dif.pdf }}</td>
-            <td>{{ dif.bd }}</td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
+    <ResultadoConciliacion
+      v-if="resultadoConciliacion"
+      :resultadoConciliacion="resultadoConciliacion"
+    />
   </section>
 </template>
 
 <script>
+import ResultadoConciliacion from '@/components/facturas/ResultadoConciliacion.vue'
+import FacturaUpload from '../components/facturas/FacturaUpload.vue'
+import ResultadoExtraccion from '../components/facturas/ResultadoExtraccion.vue'
+
 export default {
+  components: {
+    FacturaUpload,
+    ResultadoExtraccion,
+    ResultadoConciliacion,
+  },
+
   data() {
     return {
-      archivo: null,
       resultadoExtraccion: null,
       resultadoConciliacion: null,
     }
   },
 
   methods: {
-    seleccionarArchivo(event) {
-      this.archivo = event.target.files[0]
-      console.log(this.archivo)
-    },
-    analizarFactura() {
+    analizarFactura(archivo) {
+      console.log('Archivo recibido en FacturasView:', archivo)
+
       this.resultadoExtraccion = {
         folio: 'FAC-2026-0001',
         proveedor: 'Servicios Empresariales del Centro S.A. de C.V.',
